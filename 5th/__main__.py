@@ -66,7 +66,7 @@ def inference(images, batch_size, n_classes):
 
     with tf.variable_scope('pooling1_lrn') as scope:
         pool1 = max_pooling_2x2(h_conv1, 'pooling1')
-        norm1 = tf.nn.lrn(pool1, depth_radius=4, bias=1.0, alpha=0.001 / 9.0, bata=0.75, name='norm1')
+        norm1 = tf.nn.lrn(pool1, depth_radius=4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name='norm1')
 
     with tf.variable_scope('conv2') as scope:
         w_conv2 = tf.Variable(weight_variable([3, 3, 64, 32], 0.1), name='weights', dtype=tf.float32)
@@ -75,7 +75,7 @@ def inference(images, batch_size, n_classes):
 
     with tf.variable_scope('pooling2_lrn') as scope:
         pool2 = max_pooling_2x2(h_conv2, 'pooling2')
-        norm2 = tf.nn.lrn(pool2, depth_radius=4, bias=1.0, alpha=0.001 / 9.0, bata=0.75, name='norm2')
+        norm2 = tf.nn.lrn(pool2, depth_radius=4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name='norm2')
 
     with tf.variable_scope('conv3') as scope:
         w_conv3 = tf.Variable(weight_variable([3, 3, 32, 16], 0.1), name='weights', dtype=tf.float32)
@@ -84,7 +84,7 @@ def inference(images, batch_size, n_classes):
 
     with tf.variable_scope('pooling3_lrn') as scope:
         pool3 = max_pooling_2x2(h_conv3, 'pooling3')
-        norm3 = tf.nn.lrn(pool3, depth_radius=4, bias=1.0, alpha=0.001 / 9.0, bata=0.75, name='norm3')
+        norm3 = tf.nn.lrn(pool3, depth_radius=4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name='norm3')
 
     with tf.variable_scope('local3') as scope:
         reshape = tf.reshape(norm3, shape=[batch_size, -1])
@@ -133,9 +133,11 @@ def evaluation(logits, labels):
     return accuracy
 
 
-train_dir = 'flowers'
+train_dir = 'D:\\大数据与人工智能实训\\course-of-big-data-and-AI-training\\5th\\flowers'
+# train_dir = 'flowers'
 logs_train_dir = 'CK-_part'
 train, train_label = get_file(train_dir)
+print('loaded')
 train_batch, train_label_batch = get_batch(train, train_label, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
 
 train_logits = inference(train_batch, BATCH_SIZE, N_CLASSES)
@@ -152,6 +154,7 @@ coord = tf.train.Coordinator()
 threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
 if __name__ == "__main__":
+    print('start')
     try:
         for step in np.arange(MAX_STEP):
             if coord.should_stop():
@@ -160,7 +163,7 @@ if __name__ == "__main__":
             _, tra_loss, tra_acc = sess.run([train_op, train_loss, train_acc])
             if step % 10 == 0:
                 print("Step %d, train loss = %.2f, train accuracy = %.2f%%" % (step, tra_loss, tra_acc * 100.0))
-                summary_str= sess.run(summary_op)
+                summary_str = sess.run(summary_op)
                 train_writer.add_summary(summary_str, step)
             checkpoint_path = os.path.join(logs_train_dir, 'thing.ckpt')
             saver.save(sess, checkpoint_path)
