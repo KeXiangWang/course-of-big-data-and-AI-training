@@ -15,7 +15,7 @@ tf.app.flags.DEFINE_integer('units_num', 128, 'number of hidden units of lstm')
 tf.app.flags.DEFINE_integer('epoch', 50, 'epoch of training step')
 tf.app.flags.DEFINE_integer('batch_size', 64, 'mini_batch size')
 tf.app.flags.DEFINE_integer('max_len', 10, 'we will use ten points to predict the value of 11th')
-tf.app.flags.DEFINE_enum('model_state', 'predict', ["train", "predict"], 'model state')
+tf.app.flags.DEFINE_enum('model_state', 'train', ["train", "predict"], 'model state')
 tf.app.flags.DEFINE_boolean('debugging', False, 'delete log or not')
 tf.app.flags.DEFINE_float('lr', 0.01, 'learning rate')
 tf.app.flags.DEFINE_enum('function', 'cos', ['sin', 'cos'], 'select sin function or cos function')
@@ -53,8 +53,7 @@ class RNN(object):
 
     def build_rnn(self):
         with tf.variable_scope('lstm_layer'):
-            cells = tf.contrib.rnn.MultiRNNCell(
-                [tf.contrib.rnn.BasicLSTMCell(FLAGS.units_num) for _ in range(FLAGS.layer_num)])
+            cells = tf.contrib.rnn.GRUCell(num_units=FLAGS.units_num)
             outputs, final_states = tf.nn.dynamic_rnn(cell=cells, inputs=self.input, dtype=np.float32)
             self.outputs = outputs[:, -1]
 
@@ -142,16 +141,17 @@ if __name__ == '__main__':
                             saver.save(sess=sess, save_path=log_dir, global_step=step)
         if FLAGS.model_state == 'predict':
             print('------------Enter predict model-------------')
-            result = []
+            result =[]
             mse = []
             for xs, ys in get_batches(test_x, test_y):
                 feed_dict = {
                     rnn_model.x: xs,
                     rnn_model.y_: ys
                 }
-                predicts  = sess.run( rnn_model.predicts,  feed_dict=feed_dict)
-                # print("x:", xs, "y:", ys, "predict:", predicts)
+                predicts = sess.run(rnn_model.predicts, feed_dict= feed_dict)
                 result.extend(predicts.tolist())
                 ms = np.mean(np.square(np.array(predicts) - np.array(ys)))
                 mse.append(ms)
             tf.logging.info('average of mse: {}'.format(np.mean(mse)))
+
+
