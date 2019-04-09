@@ -18,7 +18,8 @@ tf.app.flags.DEFINE_integer('max_len', 10, 'we will use ten points to predict th
 tf.app.flags.DEFINE_enum('model_state', 'predict', ["train", "predict"], 'model state')
 tf.app.flags.DEFINE_boolean('debugging', False, 'delete log or not')
 tf.app.flags.DEFINE_float('lr', 0.01, 'learning rate')
-tf.app.flags.DEFINE_enum('function', 'cos', ['sin', 'cos'], 'select sin function or cos function')
+tf.app.flags.DEFINE_enum('function', 'sin', ['sin', 'cos'], 'select sin function or cos function')
+
 
 
 def generate_data(seq):
@@ -28,7 +29,6 @@ def generate_data(seq):
         x.append(seq[i:i + FLAGS.max_len])
         y.append(seq[i + FLAGS.max_len])
     return np.array(x, dtype=np.float32), np.array(y, dtype=np.float32)
-
 
 def get_batches(X, y):
     batch_size = FLAGS.batch_size
@@ -154,4 +154,6 @@ if __name__ == '__main__':
                 result.extend(predicts.tolist())
                 ms = np.mean(np.square(np.array(predicts) - np.array(ys)))
                 mse.append(ms)
+            plt.plot(mse)
+            plt.show()
             tf.logging.info('average of mse: {}'.format(np.mean(mse)))
