@@ -1,7 +1,8 @@
 from numpy import *
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-
+from sklearn.datasets import load_iris
 
 # sigmoid函数
 def sigmoid(inX):
@@ -58,26 +59,36 @@ def plotBestFit(weights):
     ax = plt.subplot(111)
     ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
     ax.scatter(xcord2, ycord2, s=30, c='green')
-    x = arange(0.2, 0.8, 0.1)
+    x = arange(4, 7, 0.1)
     y = array((-weights[0] - weights[1] * x) / weights[2])
     print(shape(x))
     print(shape(y))
     plt.sca(ax)
-    plt.plot(x, y)  # ramdomgradAscent
-    # plt.plot(x,y[0])   #gradAscent
-    plt.xlabel('density')
-    plt.ylabel('ratio_sugar')
-    # plt.title('gradAscent logistic regression')
-    plt.title('ramdom gradAscent logistic regression')
+    # plt.plot(x, y)  # ramdomgradAscent
+    plt.plot(x,y[0])   #gradAscent
+    plt.xlabel('SepaLengthCm')
+    plt.ylabel('SepalWidthCm')
+    plt.title('gradAscent logistic regression')
+    # plt.title('ramdom gradAscent logistic regression')
     plt.show()
 
 
 if __name__ == "__main__":
-    df = pd.read_csv('watermelon_3a.csv')
-    m, n = shape(df)
-    df['idx'] = ones((m, 1))
-    dataMat = array(df[['idx', 'density', 'ratio_sugar']].values[:, :])
-    labelMat = mat(df['label'].values[:]).transpose()
+    # df = pd.read_csv('watermelon_3a.csv')
+    # m, n = shape(df)
+    # df['idx'] = ones((m, 1))
+    #
+    # dataMat = array(df[['idx', 'density', 'ratio_sugar']].values[:, :])
+    # labelMat = mat(df['label'].values[:]).transpose()
     # weights = gradAscent(dataMat, labelMat)
-    weights = randomgradAscent(dataMat, labelMat)
+    # weights = randomgradAscent(dataMat, labelMat)
+    data = load_iris()
+    dataMat = array(data.data[0:100])
+    m,n = shape(dataMat)
+    index = ones((m))
+    dataMat =  np.insert(dataMat, 0, values=index, axis=1)[:, 0:3]
+    labelMat = mat(data.target[0:100]).reshape(-1,1)
+    # x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.7, test_size=0.3, random_state=1)
+    weights = gradAscent(dataMat, labelMat)
+    # weights = randomgradAscent(dataMat, labelMat)
     plotBestFit(weights)

@@ -8,8 +8,8 @@ if __name__ == "__main__":
     # 读入dataframe
     df = pd.read_csv(StringIO(csv_data))
     print(df)
-    x = df['square_feet'].reshape(-1, 1)
-    y = df['square_feet']
+    x = df['square_feet'].values.reshape(-1, 1)
+    y = df['price']
     # 建立线性回归模型
     regr = linear_model.LinearRegression()
     # 拟合
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     # 方式1：根据直线方程计算的价格
     print("price=", a * area + b)
     # 方式2：根据predict方法预测的价格
-    print("price predicted=", regr.predict(area))
+    print("price predicted=", regr.predict([[area]]))
     # 画图
     # 1.真实的点
     plt.scatter(x, y, color='blue', label='real price')
